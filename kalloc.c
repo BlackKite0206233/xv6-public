@@ -95,7 +95,7 @@ kalloc(void)
 }
 
 void*
-valloc(int size, unsigned int type, void* val)
+valloc(int size, int type, void* val)
 {
   return (void*)1;
 }

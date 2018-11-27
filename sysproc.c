@@ -92,14 +92,14 @@ sys_uptime(void)
 
 void* sys_valloc(void) {
   int size;
-  unsigned int type;
+  int type;
   void* val;
 
   if(argint(0, &size) < 0)
     return (void*)-1;
   if(argint(1, &type) < 0)
     return (void*)-1;
-  if(argptr(2, &(char *)val, type) < 0)
+  if(argptr(2, (char**)val, type) < 0)
     return (void*)-1;
   
   return valloc(size, type, val);
