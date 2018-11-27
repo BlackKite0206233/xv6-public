@@ -51,8 +51,7 @@ sys_sbrk(void)
   if(argint(0, &n) < 0)
     return -1;
   addr = myproc()->sz;
-  if(growproc(n) < 0)
-    return -1;
+  myproc()->sz += n;
   return addr;
 }
 
@@ -90,17 +89,15 @@ sys_uptime(void)
   return xticks;
 }
 
-void* sys_valloc(void) {
-  int size;
-  int type;
-  void* val = 0;
+int 
+sys_brk(void) 
+{
+  int newAddr;
+  int addr;
 
-  if(argint(0, &size) < 0)
-    return (void*)-1;
-  if(argint(1, &type) < 0)
-    return (void*)-1;
-  if(argptr(2, (char**)val, type) < 0)
-    return (void*)-1;
-  
-  return valloc(size, type, val);
+  if(argint(0, &newAddr) < 0)
+    return -1;
+  addr = myproc()->sz;
+  myproc()->sz = newAddr;
+  return addr;
 }

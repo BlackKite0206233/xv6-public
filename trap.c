@@ -14,6 +14,8 @@ extern uint vectors[];  // in vectors.S: array of 256 entry pointers
 struct spinlock tickslock;
 uint ticks;
 
+extern int mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm);
+
 void
 tvinit(void)
 {
@@ -43,6 +45,19 @@ trap(struct trapframe *tf)
     syscall();
     if(myproc()->killed)
       exit();
+    return;
+  }
+
+  if (tf->trapno == T_PGFLT) {
+    char* mem;
+    uint a;
+    a = PGROUNDDOWN(rcr2());
+    uint newsz = myproc()->sz;
+    for(; a < newsz; a += PGSIZE) {
+      mem = kalloc();
+      memset(mem, 0, PGSIZE);
+      mappages(myproc()->pgdir, (char*)a, PGSIZE, V2P(mem), PTE_W|PTE_U);
+    }
     return;
   }
 
