@@ -94,3 +94,8 @@ kalloc(void)
   return (char*)r;
 }
 
+void*
+valloc(int size, unsigned int type, void* val)
+{
+  return 1;
+}
