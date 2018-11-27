@@ -89,3 +89,16 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+void* sys_valloc(void) {
+  int size;
+  unsigned int type;
+  void* val;
+  
+  if(argint(0, &size) < 0)
+    return -1;
+  if(argint(1, &type) < 0)
+    return -1;
+  
+  return valloc(size, type, val);
+}
