@@ -93,7 +93,7 @@ sys_uptime(void)
 void* sys_valloc(void) {
   int size;
   int type;
-  void* val;
+  void* val = 0;
 
   if(argint(0, &size) < 0)
     return (void*)-1;
