@@ -96,11 +96,11 @@ void* sys_valloc(void) {
   void* val;
 
   if(argint(0, &size) < 0)
-    return -1;
+    return (void*)-1;
   if(argint(1, &type) < 0)
-    return -1;
-  if(argptr(2, &val, type) < 0)
-    return -1;
+    return (void*)-1;
+  if(argptr(2, &(char *)val, type) < 0)
+    return (void*)-1;
   
   return valloc(size, type, val);
 }
