@@ -38,12 +38,13 @@ idtinit(void)
 void
 trap(struct trapframe *tf)
 {
+  struct proc* currentProc = myproc();
   if(tf->trapno == T_SYSCALL){
-    if(myproc()->killed)
+    if(currentProc->killed)
       exit();
-    myproc()->tf = tf;
+    currentProc->tf = tf;
     syscall();
-    if(myproc()->killed)
+    if(currentProc->killed)
       exit();
     return;
   }
@@ -52,11 +53,21 @@ trap(struct trapframe *tf)
     char* mem;
     uint a;
     a = PGROUNDDOWN(rcr2());
-    uint newsz = myproc()->sz;
+    uint newsz = currentProc->sz;
     for(; a < newsz; a += PGSIZE) {
       mem = kalloc();
+      if (mem == 0) {
+        cprintf("allocuvm out of memory\n");
+        currentProc->sz = a;
+        return;
+      }
       memset(mem, 0, PGSIZE);
-      mappages(myproc()->pgdir, (char*)a, PGSIZE, V2P(mem), PTE_W|PTE_U);
+      if (mappages(currentProc->pgdir, (char*)a, PGSIZE, V2P(mem), PTE_W|PTE_U) < 0) {
+        cprintf("allocuvm out of memory (2)\n");
+        currentProc->sz = a;
+        kfree(mem);
+        return;
+      }
     }
     return;
   }
@@ -95,7 +106,7 @@ trap(struct trapframe *tf)
 
   //PAGEBREAK: 13
   default:
-    if(myproc() == 0 || (tf->cs&3) == 0){
+    if(currentProc == 0 || (tf->cs&3) == 0){
       // In kernel, it must be our mistake.
       cprintf("unexpected trap %d from cpu %d eip %x (cr2=0x%x)\n",
               tf->trapno, cpuid(), tf->eip, rcr2());
@@ -104,24 +115,24 @@ trap(struct trapframe *tf)
     // In user space, assume process misbehaved.
     cprintf("pid %d %s: trap %d err %d on cpu %d "
             "eip 0x%x addr 0x%x--kill proc\n",
-            myproc()->pid, myproc()->name, tf->trapno,
+            currentProc->pid, currentProc->name, tf->trapno,
             tf->err, cpuid(), tf->eip, rcr2());
-    myproc()->killed = 1;
+    currentProc->killed = 1;
   }
 
   // Force process exit if it has been killed and is in user space.
   // (If it is still executing in the kernel, let it keep running
   // until it gets to the regular system call return.)
-  if(myproc() && myproc()->killed && (tf->cs&3) == DPL_USER)
+  if(currentProc && currentProc->killed && (tf->cs&3) == DPL_USER)
     exit();
 
   // Force process to give up CPU on clock tick.
   // If interrupts were on while locks held, would need to check nlock.
-  if(myproc() && myproc()->state == RUNNING &&
+  if(currentProc && currentProc->state == RUNNING &&
      tf->trapno == T_IRQ0+IRQ_TIMER)
     yield();
 
   // Check if the process has been killed since we yielded
-  if(myproc() && myproc()->killed && (tf->cs&3) == DPL_USER)
+  if(currentProc && currentProc->killed && (tf->cs&3) == DPL_USER)
     exit();
 }
