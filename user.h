@@ -1,16 +1,6 @@
 struct stat;
 struct rtcdate;
 
-#define valloc(n, type, val) { \
-  type *p; \
-  if ((p = malloc(n * sizeof(type))) == 0) \
-    return 0; \
-  for (int i = 0; i < n; i++) { \
-    p[i] = *((type *)val); \
-  } \
-  return p; \
-}
-
 // system calls
 int fork(void);
 int exit(void) __attribute__((noreturn));
@@ -47,5 +37,6 @@ uint strlen(const char*);
 void* memset(void*, int, uint);
 void* malloc(uint);
 void* calloc(int, uint);
+void* valloc(int, uint, void*);
 void free(void*);
 int atoi(const char*);

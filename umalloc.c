@@ -99,3 +99,19 @@ calloc(int n, uint type)
   memset(p, 0, type);
   return p;
 }
+
+void* 
+valloc(int n, uint size, void* value)
+{
+    char* cp_val = (char*)value;
+    void *p;
+    if ((p = malloc(n * size)) == 0)
+        return 0;
+    for (int i = 0; i < n; i++) {
+        char* pp = ((char*)p) + (i * size);
+        for(int j = 0;j < size; j++) {
+            pp[j] = cp_val[j];
+        }
+    }
+    return p;
+}
