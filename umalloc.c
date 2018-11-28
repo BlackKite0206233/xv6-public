@@ -51,7 +51,8 @@ morecore(uint nu)
 
   if(nu < 4096)
     nu = 4096;
-  p = sbrk(nu * sizeof(Header));
+  p = sbrk(0);
+  p = brk(p + nu * sizeof(Header));
   if(p == (char*)-1)
     return 0;
   hp = (Header*)p;
