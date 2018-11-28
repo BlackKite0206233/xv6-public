@@ -18,7 +18,7 @@ int main() {
     int len = 10;
     Test *tArray = (Test *)valloc(len, sizeof(Test), &t);
     for (int i = 0; i < len; i++) {
-        printf(1, "%d\t%#012x\t", i, tArray + i);
+        printf(1, "%d\t%#012X\t", i, tArray + i);
         Test *t_i = &tArray[i];
         char *c = (char *)t_i;
         for (int j = 0; j < sizeof(Test); j++) {
