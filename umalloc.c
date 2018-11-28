@@ -88,3 +88,14 @@ malloc(uint nbytes)
         return 0;
   }
 }
+
+void*
+calloc(int n, uint type)
+{
+  void* p;
+  if ((p = malloc(n * type)) == 0)
+    return 0;
+
+  memset(p, 0, type);
+  return p;
+}

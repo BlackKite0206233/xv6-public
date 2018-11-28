@@ -93,9 +93,3 @@ kalloc(void)
     release(&kmem.lock);
   return (char*)r;
 }
-
-void*
-valloc(int size, int type, void* val)
-{
-  return (void*)1;
-}
