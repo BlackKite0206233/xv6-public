@@ -6,6 +6,10 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "fs.h"
+#include "sleeplock.h"
+#include "buf.h"
+#include "file.h"
 #include "fcntl.h"
 
 struct {
