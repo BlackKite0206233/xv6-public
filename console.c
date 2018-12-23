@@ -240,9 +240,9 @@ consoleintr(int (*getc)(void))
   if (doproc) {
     fgproc();
   }
-  if (suspend) {
-    suspend_proc2();
-  }
+  // if (suspend) {
+  //   suspend_proc2();
+  // }
 }
 
 int
