@@ -121,6 +121,10 @@ int             wait(void);
 void            wakeup(void*);
 void            yield(void);
 int             fgproc(void);
+int             suspend_proc(void);
+int             resume_proc(void);
+int             suspend_proc2(void);
+int             resume_proc2(void);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

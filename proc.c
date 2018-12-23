@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "fcntl.h"
 
 struct {
   struct spinlock lock;
@@ -538,11 +539,229 @@ fgproc(void) {
   struct proc *p;
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
     if (p != initproc && p->pid != 2) {
-      cprintf("CTRL+C");
       p->killed = 1;
       kill(p->pid);
       break;
     }
   }
   return 23;
+}
+
+int
+suspend_proc(void) {
+    cprintf("suspending process ...\n");
+    int i, pid;
+    struct proc *np;
+    if ((np = allocproc()) == 0)
+        return -1;
+
+    // Copy process state from p.
+    if ((np->pgdir = copyuvm(proc->pgdir, proc->sz)) == 0) {
+        kfree(np->kstack);
+        np->kstack = 0;
+        np->state = UNUSED;
+        return -1;
+    }
+    np->sz = proc->sz;
+    np->parent = proc;
+    *np->tf = *proc->tf;
+
+    // Clear %eax so that fork returns 0 in the child.
+    np->tf->eax = 0;
+
+    for (i = 0; i < NOFILE; i++)
+        if (proc->ofile[i])
+            np->ofile[i] = filedup(proc->ofile[i]);
+    np->cwd = idup(proc->cwd);
+
+    safestrcpy(np->name, proc->name, sizeof(proc->name));
+
+    pid = np->pid;
+
+    // Allocate process
+    struct buf *buffer = bread(1, 800);
+
+    cprintf("#############################\n");
+    cprintf("#process %s suspended\n#process id: %d\n#size: %d\n", proc->name, proc->pid,
+            proc->sz);
+    cprintf("#############################\n");
+
+    // Write proc state to buffer
+    memmove(buffer->data , proc, sizeof(*proc));
+    bwrite(buffer);
+    brelse(buffer);
+
+    exit();
+    return pid;
+}
+
+int
+resume_proc(void) {
+    cprintf("resuming process ...\n");
+
+
+    // Read process state from buffer
+    struct buf *buffer = bread(1, 800);
+
+    int pid;
+    struct proc *p_load;
+    p_load = (struct proc *) buffer->data;
+    brelse(buffer);
+    struct proc *np;
+
+    // Allocate process.
+    if ((np = allocproc()) == 0)
+        return -1;
+
+    // Just like the fork function, but this time, we copy states from p_load, not proc
+    // Copy process state from p_load.
+    if ((np->pgdir = copyuvm(p_load->pgdir, p_load->sz)) == 0) {
+        kfree(np->kstack);
+        np->kstack = 0;
+        np->state = UNUSED;
+        return -1;
+    }
+    np->sz = p_load->sz;
+    np->parent = p_load;
+    *np->tf = *p_load->tf;
+
+    // Clear %eax so that fork returns 0 in the child.
+    np->tf->eax = 0;
+    int i;
+    for (i = 0; i < NOFILE; i++)
+        if (p_load->ofile[i])
+            np->ofile[i] = filedup(p_load->ofile[i]);
+    np->cwd = idup(p_load->cwd);
+
+    safestrcpy(np->name, p_load->name, sizeof(p_load->name));
+
+    pid = np->pid;
+
+    // lock to force the compiler to emit the np->state write last.
+    acquire(&ptable.lock);
+    np->state = RUNNABLE;
+    release(&ptable.lock);
+
+    return pid;
+}
+
+void
+file_write(struct proc *p, char *name, char *data) {
+    int fd;
+    struct file *file;
+
+    if ((fd = open_file(name, O_CREATE | O_RDWR)) < 0) {
+        panic("opening file failed\n");
+    }
+    file = p->ofile[fd];
+    if ((filewrite(file, data, PGSIZE)) != PGSIZE)
+        panic("writing file failed\n");
+}
+
+static void
+file_write_pagetable(struct proc *p, char *name, int va) {
+    char *memory = ptable_to_memory(proc->pgdir, va);
+    file_write(p, name, memory);
+    kfree(memory);
+}
+
+int
+file_write_pagetable_all(struct proc *p, char *name) {
+    int size = strlen(name), i, counter = 0;
+    char final_name[size + 1];
+
+    for (i = 0; i < p->sz; i += PGSIZE) {
+        char c = itoa(counter);
+        strncat(final_name, name, &c, 1);
+        file_write_pagetable(p, final_name, i);
+        counter++;
+    }
+
+    return counter;
+}
+
+void
+file_read(struct proc *p, char *name, void *data, int size) {
+    int fd;
+    struct file *file;
+    if ((fd = open_file(name, O_RDONLY)) < 0)
+        panic("load_process: open_file failed\n");
+    file = p->ofile[fd];
+    if ((fileread(file, (char *) data, size)) != size)
+        panic("load_process: fileread failed\n");
+}
+
+static char *
+file_read_pagetabels(struct proc *p, char *name) {
+    char *memory = kalloc();
+    file_read(p, name, memory, PGSIZE);
+    return memory;
+}
+
+void
+file_map_pagetables(struct proc *current_proc, char *name, struct proc *res_proc, int p_size) {
+    int i, counter = 0, size = strlen(name);
+    char final_name[size + 1];
+
+    for (i = 0; i < p_size; i += PGSIZE) {
+        char c = itoa(counter);
+        strncat(final_name, name, &c, 1);
+        char *data = file_read_pagetabels(current_proc, final_name);
+
+        if ((memory_to_ptable(res_proc->pgdir, (void *) i, data)) < 0)
+            panic("load_process: memory to pagetable mapping failed\n");
+
+        counter++;
+    }
+}
+
+int
+suspend_proc2(void) {
+    cprintf("suspending process using approach 2 ...\n");
+
+    file_write(proc, "procstats", (char *) proc);
+    file_write(proc, "trapframes", (char *) proc->tf);
+    file_write_pagetable_all(proc, "pagetables");
+
+    cprintf("suspend_proc2 says: successful!\n");
+    exit();
+    return 0;
+}
+
+int
+resume_proc2(void) {
+    cprintf("resuming process using approach 2 ...\n");
+
+    struct proc *ld_proc;
+    if ((ld_proc = allocproc()) == 0)
+        return 0;
+    ld_proc->pgdir = setupkvm();
+
+    struct proc p;
+    file_read(proc, "procstats", &p, sizeof(struct proc));
+    memset(ld_proc->tf, 0, sizeof(struct trapframe));
+
+    file_read(proc, "trapframes", ld_proc->tf, sizeof(struct trapframe));
+
+    file_map_pagetables(proc, "pagetables", ld_proc, p.sz);
+
+    ld_proc->sz = p.sz;
+    // Make the current process parent of the resumed process
+    ld_proc->parent = proc;
+
+    int i;
+    for (i = 0; i < NOFILE; i++)
+        if (p.ofile[i])
+            ld_proc->ofile[i] = filedup(p.ofile[i]);
+    ld_proc->cwd = idup(p.cwd);
+
+    safestrcpy(ld_proc->name, p.name, sizeof(p.name));
+
+    // lock to force the compiler to emit the np->state write last.
+    acquire(&ptable.lock);
+    ld_proc->state = RUNNABLE;
+    release(&ptable.lock);
+
+
+    return 0;
 }

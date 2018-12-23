@@ -105,31 +105,39 @@ extern int sys_write(void);
 extern int sys_uptime(void);
 extern int sys_brk(void);
 extern int sys_fgproc(void);
+extern int sys_suspend_proc(void);
+extern int sys_resume_proc(void);
+extern int sys_suspend_proc2(void);
+extern int sys_resume_proc2(void);
 
 static int (*syscalls[])(void) = {
-[SYS_fork]    sys_fork,
-[SYS_exit]    sys_exit,
-[SYS_wait]    sys_wait,
-[SYS_pipe]    sys_pipe,
-[SYS_read]    sys_read,
-[SYS_kill]    sys_kill,
-[SYS_exec]    sys_exec,
-[SYS_fstat]   sys_fstat,
-[SYS_chdir]   sys_chdir,
-[SYS_dup]     sys_dup,
-[SYS_getpid]  sys_getpid,
-[SYS_sbrk]    sys_sbrk,
-[SYS_sleep]   sys_sleep,
-[SYS_uptime]  sys_uptime,
-[SYS_open]    sys_open,
-[SYS_write]   sys_write,
-[SYS_mknod]   sys_mknod,
-[SYS_unlink]  sys_unlink,
-[SYS_link]    sys_link,
-[SYS_mkdir]   sys_mkdir,
-[SYS_close]   sys_close,
-[SYS_brk]     sys_brk,
-[SYS_fgproc]  sys_fgproc,
+[SYS_fork]          sys_fork,
+[SYS_exit]          sys_exit,
+[SYS_wait]          sys_wait,
+[SYS_pipe]          sys_pipe,
+[SYS_read]          sys_read,
+[SYS_kill]          sys_kill,
+[SYS_exec]          sys_exec,
+[SYS_fstat]         sys_fstat,
+[SYS_chdir]         sys_chdir,
+[SYS_dup]           sys_dup,
+[SYS_getpid]        sys_getpid,
+[SYS_sbrk]          sys_sbrk,
+[SYS_sleep]         sys_sleep,
+[SYS_uptime]        sys_uptime,
+[SYS_open]          sys_open,
+[SYS_write]         sys_write,
+[SYS_mknod]         sys_mknod,
+[SYS_unlink]        sys_unlink,
+[SYS_link]          sys_link,
+[SYS_mkdir]         sys_mkdir,
+[SYS_close]         sys_close,
+[SYS_brk]           sys_brk,
+[SYS_fgproc]        sys_fgproc,
+[SYS_suspend_proc]  sys_suspend_proc,
+[SYS_resume_proc]   sys_resume_proc,
+[SYS_suspend_proc2] sys_suspend_proc2,
+[SYS_resume_proc2]  sys_resume_proc2,
 };
 
 void

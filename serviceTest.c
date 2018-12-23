@@ -4,7 +4,7 @@
 
 int main() {
     while (1) {
-        printf(1, "hellow");
+        printf(1, "hellow\n");
     }
 
     return 0;

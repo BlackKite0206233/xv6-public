@@ -191,8 +191,8 @@ struct {
 void
 consoleintr(int (*getc)(void))
 {
-  int c, doprocdump = 0;
-  int doproc = 0;
+  int c, doprocdump, doproc, suspend = 0;
+
 
   acquire(&cons.lock);
   while((c = getc()) >= 0){
@@ -203,6 +203,9 @@ consoleintr(int (*getc)(void))
       break;
     case C('C'):
       doproc = 1;
+      break;
+    case C('Z'):
+      suspend = 1;
       break;
     case C('U'):  // Kill line.
       while(input.e != input.w &&
@@ -236,6 +239,9 @@ consoleintr(int (*getc)(void))
   }
   if (doproc) {
     fgproc();
+  }
+  if (suspend) {
+    suspend_proc2();
   }
 }
 

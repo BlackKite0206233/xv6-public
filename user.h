@@ -25,6 +25,10 @@ int sleep(int);
 int uptime(void);
 char* brk(int);
 int fgproc(void);
+int suspend_proc(void);
+int resume_proc(void);
+int suspend_proc2(void);
+int resume_proc2(void);
 
 // ulib.c
 int stat(const char*, struct stat*);
