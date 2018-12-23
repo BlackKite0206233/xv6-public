@@ -6,7 +6,6 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
-#include "fcntl.h"
 #include "fs.h"
 #include "sleeplock.h"
 #include "buf.h"

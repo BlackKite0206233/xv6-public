@@ -387,26 +387,26 @@ copyout(pde_t *pgdir, uint va, void *p, uint len)
 
 char *
 ptable_to_memory(pde_t *pgdir, int va) {
-  pte_t *pte;
-  uint pa;
-  char *mem;
+    pte_t *pte;
+    uint pa;
+    char *mem;
 
-  if ((pte = walkpgdir(pgdir, (void *) va, 0)) == 0)
-    panic("pte should exist");
-  if (!(*pte & PTE_P))
-    panic("page not present");
-  pa = PTE_ADDR(*pte);
-  if ((mem = kalloc()) == 0)
-    panic("copy_pgtable2mem: kalloc failed");
-  memmove(mem, (char *) P2V(pa), PGSIZE);
-  return mem;
+    if ((pte = walkpgdir(pgdir, (void *) va, 0)) == 0)
+        panic("pte should exist");
+    if (!(*pte & PTE_P))
+        panic("page not present");
+    pa = PTE_ADDR(*pte);
+    if ((mem = kalloc()) == 0)
+        panic("copy_pgtable2mem: kalloc failed");
+    memmove(mem, (char *) P2V(pa), PGSIZE);
+    return mem;
 }
 
 int
 memory_to_ptable(pde_t *pgdir, const void *va, char *mem) {
-  if ((mappages(pgdir, (void *) va, PGSIZE, V2P(mem), PTE_W | PTE_U)) < 0)
-    return -1;
-  return 0;
+    if ((mappages(pgdir, (void *) va, PGSIZE, V2P(mem), PTE_W | PTE_U)) < 0)
+        return -1;
+    return 0;
 }
 
 //PAGEBREAK!
