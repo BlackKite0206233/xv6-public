@@ -398,13 +398,13 @@ ptable_to_memory(pde_t *pgdir, int va) {
     pa = PTE_ADDR(*pte);
     if ((mem = kalloc()) == 0)
         panic("copy_pgtable2mem: kalloc failed");
-    memmove(mem, (char *) p2v(pa), PGSIZE);
+    memmove(mem, (char *) P2V(pa), PGSIZE);
     return mem;
 }
 
 int
 memory_to_ptable(pde_t *pgdir, const void *va, char *mem) {
-    if ((mappages(pgdir, (void *) va, PGSIZE, v2p(mem), PTE_W | PTE_U)) < 0)
+    if ((mappages(pgdir, (void *) va, PGSIZE, V2P(mem), PTE_W | PTE_U)) < 0)
         return -1;
     return 0;
 }
