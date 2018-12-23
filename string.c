@@ -103,3 +103,18 @@ strlen(const char *s)
   return n;
 }
 
+char
+itoa(int s) {
+  return (char) (s + 48);
+}
+
+void
+strncat(char *dst, char *src1, char *src2, uint n) {
+    int sz1 = strlen(src1);
+
+    memset(dst, 0, sz1 + n + 1);
+    memmove(dst, src1, sz1);
+    memmove(dst + sz1, src2, n);
+
+    dst[sz1 + n] = '\0';
+}
