@@ -227,3 +227,18 @@ cmostime(struct rtcdate *r)
   *r = t1;
   r->year += 2000;
 }
+
+int
+cpunum(void)
+{
+  if (readeflags()&FL_IF) {
+    static int n;
+    if (n++ == 0)
+      cprintf("cpu called from %x with interrupts enabled\n",
+        __builtin_return_address(0));
+  }
+
+  if (lapic)
+    return lapic[ID] >> 24;
+  return 0;
+}

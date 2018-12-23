@@ -109,21 +109,25 @@ sys_fgproc(void)
 }
 
 int
-sys_suspend_proc(void) {
-    return suspend_proc();
+sys_suspend_proc(void) 
+{
+  return suspend_proc();
 }
 
 int
-sys_resume_proc(void) {
-    return resume_proc();
+sys_resume_proc(void) 
+{
+  return resume_proc();
 }
 
 int
-sys_suspend_proc2(void) {
-    return suspend_proc2();
+sys_suspend_proc2(void) 
+{
+  return suspend_proc2();
 }
 
 int
-sys_resume_proc2(void) {
-    return resume_proc2();
+sys_resume_proc2(void) 
+{
+  return resume_proc2();
 }

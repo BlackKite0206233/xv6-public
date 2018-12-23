@@ -445,45 +445,45 @@ sys_pipe(void)
 }
 
 int open_file(char *path, int omode) {
-    int fd;
-    struct file *f;
-    struct inode *ip;
+  int fd;
+  struct file *f;
+  struct inode *ip;
 
-    begin_op();
+  begin_op();
 
-    if (omode & O_CREATE) {
-        ip = create(path, T_FILE, 0, 0);
-        if (ip == 0) {
-            end_op();
-            return -1;
-        }
-    } else {
-        if ((ip = namei(path)) == 0) {
-            end_op();
-            return -1;
-        }
-        ilock(ip);
-        if (ip->type == T_DIR && omode != O_RDONLY) {
-            iunlockput(ip);
-            end_op();
-            return -1;
-        }
+  if (omode & O_CREATE) {
+    ip = create(path, T_FILE, 0, 0);
+    if (ip == 0) {
+      end_op();
+      return -1;
     }
-
-    if ((f = filealloc()) == 0 || (fd = fdalloc(f)) < 0) {
-        if (f)
-            fileclose(f);
-        iunlockput(ip);
-        end_op();
-        return -1;
+  } else {
+    if ((ip = namei(path)) == 0) {
+      end_op();
+      return -1;
     }
-    iunlock(ip);
+    ilock(ip);
+    if (ip->type == T_DIR && omode != O_RDONLY) {
+      iunlockput(ip);
+      end_op();
+      return -1;
+    }
+  }
+
+  if ((f = filealloc()) == 0 || (fd = fdalloc(f)) < 0) {
+    if (f)
+      fileclose(f);
+    iunlockput(ip);
     end_op();
+    return -1;
+  }
+  iunlock(ip);
+  end_op();
 
-    f->type = FD_INODE;
-    f->ip = ip;
-    f->off = 0;
-    f->readable = !(omode & O_WRONLY);
-    f->writable = (omode & O_WRONLY) || (omode & O_RDWR);
-    return fd;
+  f->type = FD_INODE;
+  f->ip = ip;
+  f->off = 0;
+  f->readable = !(omode & O_WRONLY);
+  f->writable = (omode & O_WRONLY) || (omode & O_RDWR);
+  return fd;
 }
