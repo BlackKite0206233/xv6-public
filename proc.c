@@ -556,29 +556,31 @@ suspend_proc(void) {
   cprintf("suspending process ...\n");
   int i, pid;
   struct proc *np;
+  struct proc *curproc = myproc();
+
   if ((np = allocproc()) == 0)
     return -1;
 
   // Copy process state from p.
-  if ((np->pgdir = copyuvm(proc->pgdir, proc->sz)) == 0) {
+  if ((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0) {
     kfree(np->kstack);
     np->kstack = 0;
     np->state = UNUSED;
     return -1;
   }
-  np->sz = proc->sz;
-  np->parent = proc;
-  *np->tf = *proc->tf;
+  np->sz = curproc->sz;
+  np->parent = curproc;
+  *np->tf = *curproc->tf;
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
 
   for (i = 0; i < NOFILE; i++)
-    if (proc->ofile[i])
-      np->ofile[i] = filedup(proc->ofile[i]);
-  np->cwd = idup(proc->cwd);
+    if (curproc->ofile[i])
+      np->ofile[i] = filedup(curproc->ofile[i]);
+  np->cwd = idup(curproc->cwd);
 
-  safestrcpy(np->name, proc->name, sizeof(proc->name));
+  safestrcpy(np->name, curproc->name, sizeof(curproc->name));
 
   pid = np->pid;
 
@@ -586,12 +588,12 @@ suspend_proc(void) {
   struct buf *buffer = bread(1, 800);
 
   cprintf("#############################\n");
-  cprintf("#process %s suspended\n#process id: %d\n#size: %d\n", proc->name, proc->pid,
-          proc->sz);
+  cprintf("#process %s suspended\n#process id: %d\n#size: %d\n", curproc->name, curproc->pid,
+          curproc->sz);
   cprintf("#############################\n");
 
   // Write proc state to buffer
-  memmove(buffer->data , proc, sizeof(*proc));
+  memmove(buffer->data , curproc, sizeof(*curproc));
   bwrite(buffer);
   brelse(buffer);
 
@@ -657,7 +659,9 @@ file_write(struct proc *p, char *name, char *data) {
   if ((fd = open_file(name, O_CREATE | O_RDWR)) < 0) {
     panic("opening file failed\n");
   }
+  cprintf("%d\n", fd);
   file = p->ofile[fd];
+  cprintf("%d\n", file->type);
   if ((filewrite(file, data, PGSIZE)) != PGSIZE)
     panic("writing file failed\n");
 }
@@ -722,10 +726,11 @@ file_map_pagetables(struct proc *current_proc, char *name, struct proc *res_proc
 int
 suspend_proc2(void) {
   cprintf("suspending process using approach 2 ...\n");
+  struct proc *curproc = myproc();
 
-  file_write(proc, "procstats", (char *) proc);
-  file_write(proc, "trapframes", (char *) proc->tf);
-  file_write_pagetable_all(proc, "pagetables");
+  file_write(curproc, "procstats", (char *) curproc);
+  file_write(curproc, "trapframes", (char *) curproc->tf);
+  file_write_pagetable_all(curproc, "pagetables");
 
   cprintf("suspend_proc2 says: successful!\n");
   exit();
@@ -737,22 +742,23 @@ resume_proc2(void) {
   cprintf("resuming process using approach 2 ...\n");
 
   struct proc *ld_proc;
+  struct proc *curproc = myproc();
 
   if ((ld_proc = allocproc()) == 0)
     return 0;
   ld_proc->pgdir = setupkvm();
 
   struct proc p;
-  file_read(proc, "procstats", &p, sizeof(struct proc));
+  file_read(curproc, "procstats", &p, sizeof(struct proc));
   memset(ld_proc->tf, 0, sizeof(struct trapframe));
 
-  file_read(proc, "trapframes", ld_proc->tf, sizeof(struct trapframe));
+  file_read(curproc, "trapframes", ld_proc->tf, sizeof(struct trapframe));
 
-  file_map_pagetables(proc, "pagetables", ld_proc, p.sz);
+  file_map_pagetables(curproc, "pagetables", ld_proc, p.sz);
 
   ld_proc->sz = p.sz;
   // Make the current process parent of the resumed process
-  ld_proc->parent = proc;
+  ld_proc->parent = curproc;
 
   int i;
   for (i = 0; i < NOFILE; i++)
