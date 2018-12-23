@@ -556,7 +556,6 @@ suspend_proc(void) {
   cprintf("suspending process ...\n");
   int i, pid;
   struct proc *np;
-  struct proc *proc = cpus[cpunum()].proc;
   if ((np = allocproc()) == 0)
     return -1;
 
@@ -665,7 +664,6 @@ file_write(struct proc *p, char *name, char *data) {
 
 static void
 file_write_pagetable(struct proc *p, char *name, int va) {
-  struct proc *proc = cpus[cpunum()].proc;
   char *memory = ptable_to_memory(proc->pgdir, va);
   file_write(p, name, memory);
   kfree(memory);
@@ -723,7 +721,6 @@ file_map_pagetables(struct proc *current_proc, char *name, struct proc *res_proc
 
 int
 suspend_proc2(void) {
-  struct proc *proc = cpus[cpunum()].proc;
   cprintf("suspending process using approach 2 ...\n");
 
   file_write(proc, "procstats", (char *) proc);
@@ -740,7 +737,6 @@ resume_proc2(void) {
   cprintf("resuming process using approach 2 ...\n");
 
   struct proc *ld_proc;
-  struct proc *proc = cpus[cpunum()].proc;
 
   if ((ld_proc = allocproc()) == 0)
     return 0;
