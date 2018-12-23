@@ -668,7 +668,8 @@ file_write(struct proc *p, char *name, char *data) {
 
 static void
 file_write_pagetable(struct proc *p, char *name, int va) {
-  char *memory = ptable_to_memory(proc->pgdir, va);
+  struct proc *curproc = myproc();
+  char *memory = ptable_to_memory(curproc->pgdir, va);
   file_write(p, name, memory);
   kfree(memory);
 }
