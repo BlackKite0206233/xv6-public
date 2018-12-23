@@ -101,3 +101,9 @@ sys_brk(void)
   myproc()->sz = newAddr;
   return addr;
 }
+
+int
+sys_fgproc(void)
+{
+  return fgproc();
+}

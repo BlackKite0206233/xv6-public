@@ -532,3 +532,17 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+int 
+fgproc(void) {
+  struct proc *p;
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p != initproc && p->pid != 2) {
+      cprintf("CTRL+C");
+      p->killed = 1;
+      kill(p->pid);
+      break;
+    }
+  }
+  return 23;
+}
