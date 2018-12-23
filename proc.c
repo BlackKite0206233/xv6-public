@@ -8,8 +8,6 @@
 #include "spinlock.h"
 #include "fcntl.h"
 #include "buf.h"
-#include "fs.h"
-#include "file.h"
 
 struct {
   struct spinlock lock;
