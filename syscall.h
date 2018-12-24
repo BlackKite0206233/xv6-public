@@ -26,3 +26,4 @@
 #define SYS_resume_proc   25
 #define SYS_suspend_proc2 26
 #define SYS_resume_proc2  27
+#define SYS_getptable     28

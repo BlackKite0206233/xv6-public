@@ -109,6 +109,7 @@ extern int sys_suspend_proc(void);
 extern int sys_resume_proc(void);
 extern int sys_suspend_proc2(void);
 extern int sys_resume_proc2(void);
+extern int sys_getptable(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]          sys_fork,
@@ -138,6 +139,7 @@ static int (*syscalls[])(void) = {
 [SYS_resume_proc]   sys_resume_proc,
 [SYS_suspend_proc2] sys_suspend_proc2,
 [SYS_resume_proc2]  sys_resume_proc2,
+[SYS_getptable]     sys_getptable,
 };
 
 void

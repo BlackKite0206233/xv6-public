@@ -777,3 +777,7 @@ resume_proc2(void) {
 
   return 0;
 }
+
+struct proc * getptable_proc(void){
+  return ptable.proc;
+}

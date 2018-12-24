@@ -29,6 +29,7 @@ int suspend_proc(void);
 int resume_proc(void);
 int suspend_proc2(void);
 int resume_proc2(void);
+int getptable(int, void *);
 
 // ulib.c
 int stat(const char*, struct stat*);
