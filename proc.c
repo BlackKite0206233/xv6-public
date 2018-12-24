@@ -668,8 +668,7 @@ file_write(struct proc *p, char *name, char *data) {
 
 static void
 file_write_pagetable(struct proc *p, char *name, int va) {
-  struct proc *curproc = myproc();
-  char *memory = ptable_to_memory(curproc->pgdir, va);
+  char *memory = ptable_to_memory(p->pgdir, va);
   file_write(p, name, memory);
   kfree(memory);
 }
@@ -725,13 +724,18 @@ file_map_pagetables(struct proc *current_proc, char *name, struct proc *res_proc
 }
 
 int
-suspend_proc2(void) {
+suspend_proc2(int pid) {
   cprintf("suspending process using approach 2 ...\n");
-  struct proc *curproc = myproc();
+  struct proc *proc;
+  for (proc = ptable.proc; proc < &ptable.proc[NPROC]; proc++) {
+    if (proc->pid == pid) {
+      break;
+    }
+  }
 
-  file_write(curproc, "procstats", (char *) curproc);
-  file_write(curproc, "trapframes", (char *) curproc->tf);
-  file_write_pagetable_all(curproc, "pagetables");
+  file_write(proc, "procstats", (char *) proc);
+  file_write(proc, "trapframes", (char *) proc->tf);
+  file_write_pagetable_all(proc, "pagetables");
 
   cprintf("suspend_proc2 says: successful!\n");
   exit();

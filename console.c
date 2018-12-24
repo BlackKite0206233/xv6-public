@@ -241,7 +241,20 @@ consoleintr(int (*getc)(void))
     fgproc();
   }
   if (suspend) {
-    suspend_proc2();
+    struct proc ptable[NPROC];
+    struct proc *p;
+    int err;
+    
+    getptable(10 * sizeof(struct proc), &ptable);
+    p = &ptable[0];
+    while(p != &ptable[NPROC - 1] && p->state != UNUSED) {
+      p++;
+    }
+    p--;
+    if (p->pid == 1)
+      return;
+
+    suspend_proc2(p->pid);
   }
 }
 

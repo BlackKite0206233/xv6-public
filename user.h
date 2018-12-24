@@ -27,7 +27,7 @@ char* brk(int);
 int fgproc(void);
 int suspend_proc(void);
 int resume_proc(void);
-int suspend_proc2(void);
+int suspend_proc2(int pid);
 int resume_proc2(void);
 int getptable(int, void *);
 

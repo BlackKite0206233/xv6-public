@@ -1,9 +1,8 @@
+#include "param.h"
 #include "types.h"
 #include "stat.h"
 #include "user.h"
 
-//From proc.h Proc structure
-// Per-process state
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 struct proc {
   enum procstate state; // Process state
@@ -11,45 +10,42 @@ struct proc {
   int ppid ;            // Parent process ID
   char name[16];        // Process name 
 };
-
-#define MAX_PROC 10
-
 int
-main(int argc, char *argv[])
+main(void)
 {  
-  struct proc ptable[MAX_PROC];
+  struct proc ptable[NPROC];
   struct proc *p;
   int err;
   
-  err = getptable(10*sizeof(struct proc),&ptable);
-  if(err !=0)
-    printf(1,"Error getting ptable");
+  err = getptable(10 * sizeof(struct proc), &ptable);
+  if (err != 0)
+    printf(1, "Error getting ptable");
   
   p = &ptable[0];
-  printf(1, " PID  PPID  STATE  CMD \n");
-  while(p != &ptable[MAX_PROC-1] && p->state != UNUSED){
-  	printf(1,"%d  %d ",p->pid,p->ppid);
-  	switch(p->state){
+  printf(1, "PID\tPPID\tSTATE\tCMD\n");
+  while (p != &ptable[NPROC - 1] && p->state != UNUSED) {
+  	printf(1, "%d\t%d", p->pid, p->ppid);
+  	switch (p->state) {
   	case UNUSED:
-  		printf(1," %s ", "UNUSED");
+  		printf(1, "\t%s", "UNUSED");
   		break;
   	case EMBRYO:
-  		printf(1," %s ", "EMBRYO");
+  		printf(1, "\t%s", "EMBRYO");
   		break;
   	case SLEEPING:
-  		printf(1," %s ", "SLEEPING");
+  		printf(1, "\t%s", "SLEEPING");
   		break;
   	case RUNNABLE:
-  		printf(1," %s ", "RUNNABLE");
+  		printf(1, "\t%s", "RUNNABLE");
   		break;
   	case RUNNING:
-  		printf(1," %s ", "RUNNABLE");
+  		printf(1, "\t%s", "RUNNABLE");
   		break;
   	case ZOMBIE:
-  		printf(1," %s ", "RUNNABLE");
+  		printf(1, "\t%s", "RUNNABLE");
   		break;
   	} 
-  	printf(1," %s \n", p->name);
+  	printf(1, "\t%s\n", p->name);
   	p++;
   }
   	  
