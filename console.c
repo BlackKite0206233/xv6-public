@@ -188,6 +188,8 @@ struct {
 
 #define C(x)  ((x)-'@')  // Control-x
 
+extern struct proc * getptable_proc(void);
+
 void
 consoleintr(int (*getc)(void))
 {
@@ -241,10 +243,10 @@ consoleintr(int (*getc)(void))
     fgproc();
   }
   if (suspend) {
-    struct proc ptable[NPROC];
+    struct proc *ptable;
     struct proc *p;
 
-    getptable(10 * sizeof(struct proc), &ptable);
+    ptable = getptable_proc();
     p = &ptable[0];
     while(p != &ptable[NPROC - 1] && p->state != UNUSED) {
       p++;
