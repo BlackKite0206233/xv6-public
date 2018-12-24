@@ -243,8 +243,7 @@ consoleintr(int (*getc)(void))
   if (suspend) {
     struct proc ptable[NPROC];
     struct proc *p;
-    int err;
-    
+
     getptable(10 * sizeof(struct proc), &ptable);
     p = &ptable[0];
     while(p != &ptable[NPROC - 1] && p->state != UNUSED) {

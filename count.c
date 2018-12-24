@@ -25,7 +25,7 @@ count_stop(void) {
         }
         // Call to suspend_proc to save process state
         // PC will remain here
-        suspend_proc2();
+        // suspend_proc2();
         // resume_proc should start PC from here
         for (i = 4; i < 8; i++) {
             printf(1, "count : %d\n", i);
