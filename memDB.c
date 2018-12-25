@@ -24,7 +24,7 @@ void start() {
         db    = (Data *)calloc(1000, sizeof(Data *));
         count = 0;
         while (1) {
-            if (strcmp(cmd, "set")) {
+            if (strcmp(cmd, "set") == 0) {
                 Data data;
                 data.key   = (char *)malloc(1000 * sizeof(char *));
                 data.value = (char *)malloc(1000 * sizeof(char *));
@@ -32,7 +32,7 @@ void start() {
                 gets(data.value, 1000);
                 db[count] = data;
                 count++;
-            } else if (strcmp(cmd, "get")) {
+            } else if (strcmp(cmd, "get") == 0) {
                 char *key = (char *)malloc(1000 * sizeof(char *));
                 gets(key, 1000);
                 for (int i = 0; i < count; i++) {
@@ -40,7 +40,7 @@ void start() {
                         printf(1, "%s\n", db[i].value);
                     }
                 }
-            } else if (strcmp(cmd, "update")) {
+            } else if (strcmp(cmd, "update") == 0) {
                 char *key   = (char *)malloc(1000 * sizeof(char *));
                 char *value = (char *)malloc(1000 * sizeof(char *));
                 gets(key,   1000);
@@ -50,7 +50,7 @@ void start() {
                         db[i].value = value;
                     }
                 }
-            } else if (strcmp(cmd, "delete")) {
+            } else if (strcmp(cmd, "delete") == 0) {
                 char *key = (char *)malloc(1000 * sizeof(char *));
                 gets(key, 1000);
                 for (int i = 0; i < count; i++) {
@@ -91,7 +91,7 @@ void resume() {
 int flag = 0;
 int main(int argc, char *argv[]) {
     cmd = argv[1];
-    if (strcmp(argv[1], "start")) {
+    if (strcmp(argv[1], "start") == 0) {
         start();
     } else {
         resume();

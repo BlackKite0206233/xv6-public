@@ -23,6 +23,34 @@ strcmp(const char *p, const char *q)
   return (uchar)*p - (uchar)*q;
 }
 
+char ** 
+strtok(const char *p, const char *tok, int *count) {
+  *count = 0;
+  char **res = 0;
+  int l = 0;
+  for (int i = 0; i < strlen(p); i++) {
+    int flag = 1;
+    for (int j = 0; j < strlen(tok); j++) {
+      if (p[i + j] == '\0' || p[i + j] != tok[j]) {
+        flag = 0;
+        break;
+      }
+    }
+    if (flag == 1 && i != 0) {
+      res = (char**)realloc(res, *count, (*count) + 1, sizeof(char**));
+      char *s = (char*)malloc((i - 1 - l) * sizeof(char*));
+      for (int j = l; j < i; j++) {
+        s[j] = p[j];
+      }
+      res[*count] = s;
+      (*count)++;
+      i += strlen(tok);
+      l = i;
+    }
+  }
+  return res;
+}
+
 uint
 strlen(const char *s)
 {

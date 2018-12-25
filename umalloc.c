@@ -116,3 +116,19 @@ valloc(int n, uint size, void* value)
     }
     return p;
 }
+
+void*
+realloc(void* src, int n, int m, uint type) {
+  void* p;
+  if ((p = malloc(m * type)) == 0)
+    return 0;
+  
+  char* cp_src = (char*)src;
+  for (int i = 0; i < n; i++) {
+    char* pp = ((char*)p) + (i * type);
+    for (int j = 0; j < type; j++) {
+      pp[j] = cp_src[i * type + j];
+    }
+  }
+  return p;
+}
