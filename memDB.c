@@ -27,9 +27,13 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(cmd[0], "get") == 0) {
             char *key = cmd[1];
             for (int i = 0; i < count; i++) {
-                if (strcmp(key, "*") == 0 || strcmp(db[i].key, key) == 0) {
+                if (strcmp(db[i].key, key) == 0) {
                     printf(1, "key:%s value:%s\n", db[i].key, db[i].value);
                 }
+            }
+        } else if (strcmp(cmd[0], "list") == 0) {
+            for (int i = 0; i < count; i++) {
+                printf(1, "key:%s value:%s\n", db[i].key, db[i].value);
             }
         } else if (strcmp(cmd[0], "update") == 0) {
             char *key   = cmd[1];
@@ -51,9 +55,21 @@ int main(int argc, char *argv[]) {
                     count--;
                 }
             }
+        } else if (strcmp(cmd[0], "count") == 0) {
+            printf(1, "%d\n", count);
+            break;
         } else if (strcmp(cmd[0], "exit") == 0) {
             printf(1, "bye~\n\n");
             break;
+        } else if (strcmp(cmd[0], "help") == 0) {
+            printf(1, "set    data: set    <key> <value>\n");
+            printf(1, "get    data: get    <key>\n");
+            printf(1, "list   data: list\n");
+            printf(1, "update data: update <key> <new value>\n");
+            printf(1, "delete data: delete <key>\n\n");
+            printf(1, "count: count\n");
+            printf(1, "help:  help\n");
+            printf(1, "exit:  exit\n");
         }
     }
     exit();
