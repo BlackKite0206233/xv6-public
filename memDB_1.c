@@ -12,6 +12,8 @@ int main(int argc, char *argv[]) {
     while (1) {
         char *s = (char *)malloc(2100 * sizeof(char *));
         int count = 0;
+        printf(1, "> ");
+        gets(s, 2100);
         char **cmd = strtok(s, " ", &count);
         if (strcmp(cmd[0], "set") == 0) {
             Data data;
@@ -46,6 +48,8 @@ int main(int argc, char *argv[]) {
                     count--;
                 }
             }
+        } else if (strcmp(cmd[0], "exit") == 0) {
+            break;
         }
     }
 }

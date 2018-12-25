@@ -48,6 +48,13 @@ strtok(const char *p, const char *tok, int *count) {
       l = i;
     }
   }
+  res = (char**)realloc(res, *count, (*count) + 1, sizeof(char**));
+  char *s = (char*)malloc((strlen(p) - l) * sizeof(char*));
+  for (int i = l; i < strlen(p); i++) {
+    s[i] = p[i];
+  }
+  res[*count] = s;
+  (*count)++;
   return res;
 }
 
