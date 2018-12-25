@@ -57,20 +57,19 @@ int main(int argc, char *argv[]) {
             }
         } else if (strcmp(cmd[0], "count") == 0) {
             printf(1, "%d\n", count);
-            break;
-        } else if (strcmp(cmd[0], "exit") == 0) {
-            printf(1, "bye~\n\n");
-            break;
         } else if (strcmp(cmd[0], "help") == 0) {
             printf(1, "set    data: set    <key> <value>\n");
             printf(1, "get    data: get    <key>\n");
             printf(1, "list   data: list\n");
             printf(1, "update data: update <key> <new value>\n");
-            printf(1, "delete data: delete <key>\n\n");
-            printf(1, "count: count\n");
+            printf(1, "delete data: delete <key>\n");
+            printf(1, "count: count\n\n");
             printf(1, "help:  help\n");
             printf(1, "exit:  exit\n");
-        }
+        } else if (strcmp(cmd[0], "exit") == 0) {
+            printf(1, "bye~\n\n");
+            break;
+        } 
     }
     exit();
 }
