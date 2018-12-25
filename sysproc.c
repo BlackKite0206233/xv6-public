@@ -123,9 +123,7 @@ sys_resume_proc(void)
 int
 sys_suspend_proc2(void) 
 {
-  int pid;
-  argint(0, &pid);
-  return suspend_proc2(pid);
+  return suspend_proc2();
 }
 
 int

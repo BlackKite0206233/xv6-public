@@ -724,14 +724,9 @@ file_map_pagetables(struct proc *current_proc, char *name, struct proc *res_proc
 }
 
 int
-suspend_proc2(int pid) {
+suspend_proc2(void) {
   cprintf("suspending process using approach 2 ...\n");
-  struct proc *proc;
-  for (proc = ptable.proc; proc < &ptable.proc[NPROC]; proc++) {
-    if (proc->pid == pid) {
-      break;
-    }
-  }
+  struct proc *proc = myproc();
 
   file_write(proc, "procstats", (char *) proc);
   file_write(proc, "trapframes", (char *) proc->tf);
