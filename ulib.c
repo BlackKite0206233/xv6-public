@@ -38,20 +38,21 @@ strtok(const char *p, const char *tok, int *count) {
     }
     if (flag == 1 && i != 0) {
       res = (char**)realloc(res, *count, (*count) + 1, sizeof(char**));
-      char *s = (char*)malloc((i - 1 - l) * sizeof(char*));
+      char *s = (char*)malloc((i - l) * sizeof(char*));
       for (int j = l; j < i; j++) {
-        s[j] = p[j];
+        s[j - l] = p[j];
       }
       res[*count] = s;
       (*count)++;
       i += strlen(tok);
       l = i;
+      i--;
     }
   }
   res = (char**)realloc(res, *count, (*count) + 1, sizeof(char**));
-  char *s = (char*)malloc((strlen(p) - l) * sizeof(char*));
-  for (int i = l; i < strlen(p); i++) {
-    s[i] = p[i];
+  char *s = (char*)malloc((strlen(p) - l - 1) * sizeof(char*));
+  for (int i = l; i < strlen(p) - 1; i++) {
+    s[i - l] = p[i];
   }
   res[*count] = s;
   (*count)++;

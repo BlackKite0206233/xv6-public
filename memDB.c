@@ -6,95 +6,55 @@ typedef struct data {
     char *value;
 } Data;
 
-Data *db;
-char *cmd;
-int count;
-
-void start() {
-    int pid;
-
-    // Fork new process
-    pid = fork();
-    if (pid < 0) {
-        printf(1, "error in fork\n");
-        exit();
-    }
-
-    if (pid == 0) {
-        db    = (Data *)calloc(1000, sizeof(Data *));
-        count = 0;
-        while (1) {
-            if (strcmp(cmd, "set") == 0) {
-                Data data;
-                data.key   = (char *)malloc(1000 * sizeof(char *));
-                data.value = (char *)malloc(1000 * sizeof(char *));
-                gets(data.key,   1000);
-                gets(data.value, 1000);
-                db[count] = data;
-                count++;
-            } else if (strcmp(cmd, "get") == 0) {
-                char *key = (char *)malloc(1000 * sizeof(char *));
-                gets(key, 1000);
-                for (int i = 0; i < count; i++) {
-                    if (strcmp(key, "*") || strcmp(db[i].key, key)) {
-                        printf(1, "%s\n", db[i].value);
-                    }
-                }
-            } else if (strcmp(cmd, "update") == 0) {
-                char *key   = (char *)malloc(1000 * sizeof(char *));
-                char *value = (char *)malloc(1000 * sizeof(char *));
-                gets(key,   1000);
-                gets(value, 1000);
-                for (int i = 0; i < count; i++) {
-                    if (strcmp(db[i].key, key)) {
-                        db[i].value = value;
-                    }
-                }
-            } else if (strcmp(cmd, "delete") == 0) {
-                char *key = (char *)malloc(1000 * sizeof(char *));
-                gets(key, 1000);
-                for (int i = 0; i < count; i++) {
-                    if (strcmp(db[i].key, key)) {
-                        for (int j = i; j < count - 1; j++) {
-                            db[j] = db[j + 1];
-                        }
-                        db[count].key   = "";
-                        db[count].value = "";
-                        count--;
-                    }
+int main(int argc, char *argv[]) {
+    Data *db = (Data *)calloc(1000, sizeof(Data *));
+    int count = 0;
+    Data data;
+    char **cmd;
+    printf(1, "start...\n");
+    sleep(50);
+    while (1) {
+        char *s = (char *)malloc(2100 * sizeof(char *));
+        int c = 0;
+        printf(1, "> ");
+        gets(s, 2100);
+        cmd = strtok(s, " ", &c);
+        if (strcmp(cmd[0], "set") == 0) {
+            data.key   = cmd[1];
+            data.value = cmd[2];
+            db[count]  = data;
+            count++;
+        } else if (strcmp(cmd[0], "get") == 0) {
+            char *key = cmd[1];
+            for (int i = 0; i < count; i++) {
+                if (strcmp(key, "*") == 0 || strcmp(db[i].key, key) == 0) {
+                    printf(1, "key:%s value:%s\n", db[i].key, db[i].value);
                 }
             }
-            suspend_proc2();
+        } else if (strcmp(cmd[0], "update") == 0) {
+            char *key   = cmd[1];
+            char *value = cmd[2];
+            for (int i = 0; i < count; i++) {
+                if (strcmp(db[i].key, key) == 0) {
+                    db[i].value = value;
+                }
+            }
+        } else if (strcmp(cmd[0], "delete") == 0) {
+            char *key = cmd[1];
+            for (int i = 0; i < count; i++) {
+                if (strcmp(db[i].key, key) == 0) {
+                    for (int j = i; j < count - 1; j++) {
+                        db[j] = db[j + 1];
+                    }
+                    db[count].key   = "";
+                    db[count].value = "";
+                    count--;
+                }
+            }
+        } else if (strcmp(cmd[0], "exit") == 0) {
+            printf(1, "bye~\n\n");
+            break;
         }
-    }
-    wait();
-    exit();
-}
-
-void resume() {
-    int pid;
-
-    // Fork new process
-    pid = fork();
-    if (pid < 0) {
-        printf(1, "error in fork\n");
-        exit();
-    }
-
-    if (pid == 0) {
-        resume_proc2();
-    }
-    wait();
-    exit();
-}
-
-int flag = 0;
-int main(int argc, char *argv[]) {
-    cmd = argv[1];
-    if (strcmp(argv[1], "start") == 0) {
-        start();
-    } else {
-        resume();
     }
     exit();
 }
